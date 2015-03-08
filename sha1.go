@@ -47,6 +47,12 @@ func (d *digest) Reset() {
 	d.len = 0
 }
 
+func (d *digest) setH(h [5]uint32) {
+	for i := 0; i < 5; i++ {
+		d.h[i] = h[i]
+	}
+}
+
 // New returns a new hash.Hash computing the SHA1 checksum.
 func New() hash.Hash {
 	d := new(digest)
@@ -125,6 +131,16 @@ func (d *digest) checkSum() [Size]byte {
 func Sum(data []byte) [Size]byte {
 	var d digest
 	d.Reset()
+	d.Write(data)
+	return d.checkSum()
+}
+
+// SumWithInitialState returns the SHA1 checksum of the data, but allows the
+// caller to set the intial state (h) of the digest.
+func SumWithInitialState(data []byte, h [5]uint32) [Size]byte {
+	var d digest
+	d.Reset()
+	d.setH(h)
 	d.Write(data)
 	return d.checkSum()
 }
