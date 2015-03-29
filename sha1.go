@@ -137,10 +137,18 @@ func Sum(data []byte) [Size]byte {
 
 // SumWithInitialState returns the SHA1 checksum of the data, but allows the
 // caller to set the intial state (h) of the digest.
-func SumWithInitialState(data []byte, h [5]uint32) [Size]byte {
+func SumWithInitialState(data []byte, h [5]uint32, l int) [Size]byte {
 	var d digest
 	d.Reset()
+
+	// need to prime d to get everything besides h in the right state
+	filler := make([]byte, l)
+	d.Write(filler)
+	d.checkSum()
+
+	// Set the internal state of the digest.
 	d.setH(h)
+
 	d.Write(data)
 	return d.checkSum()
 }
